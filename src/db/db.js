@@ -26,6 +26,7 @@ export const migrateDbIfNeeded = async (db) => {
   }
 
   await db.execAsync(`PRAGMA user_version = ${DATABASE_VERSION}`);
+  console.log('Database migration completed successfully');
 };
 
 export const addSession = async (db, date, hours, notes) => {

@@ -12,7 +12,11 @@ const Stack = createNativeStackNavigator();
 
 export default function App() {
   return (
-    <SQLiteProvider databaseName="worktracker.db" onInit={migrateDbIfNeeded}>
+    <SQLiteProvider 
+      databaseName="worktracker.db" 
+      onInit={migrateDbIfNeeded}
+      onError={(error) => console.error('SQLite Error:', error)}
+    >
       <NavigationContainer>
         <Stack.Navigator>
           <Stack.Screen 

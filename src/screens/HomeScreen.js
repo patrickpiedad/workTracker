@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useMemo } from 'react';
 import { View, Text, FlatList, TouchableOpacity, Alert } from 'react-native';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useFocusEffect } from '@react-navigation/native';
@@ -42,6 +42,19 @@ export default function HomeScreen({ navigation }) {
     );
   };
 
+  const monthlyHours = useMemo(() => {
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+    return sessions.reduce((total, session) => {
+      const sessionDate = new Date(session.date);
+      if (sessionDate.getMonth() === currentMonth && sessionDate.getFullYear() === currentYear) {
+        return total + session.hours;
+      }
+      return total;
+    }, 0);
+  }, [sessions]);
+
   const renderItem = ({ item }) => (
     <TouchableOpacity
       className="bg-white p-4 mb-2 rounded-lg shadow-sm border border-gray-100"
@@ -67,12 +80,17 @@ export default function HomeScreen({ navigation }) {
         keyExtractor={(item) => item.id.toString()}
         renderItem={renderItem}
         ListHeaderComponent={
-          <View className="mb-4">
+          <View className="mb-6">
+            <View className="bg-blue-600 p-6 rounded-xl shadow-md mb-4">
+              <Text className="text-blue-100 text-lg font-medium mb-1">This Month</Text>
+              <Text className="text-white text-4xl font-bold">{monthlyHours.toFixed(1)} hrs</Text>
+            </View>
+            
             <TouchableOpacity 
-              className="bg-indigo-600 p-4 rounded-lg items-center shadow-sm"
+              className="bg-white p-4 rounded-lg items-center shadow-sm border border-gray-200"
               onPress={() => navigation.navigate('Stats', { sessions })}
             >
-              <Text className="text-white font-bold text-lg">View Stats</Text>
+              <Text className="text-blue-600 font-bold text-lg">View Detailed Stats</Text>
             </TouchableOpacity>
           </View>
         }

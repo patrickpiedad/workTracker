@@ -2,27 +2,29 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Alert, ScrollView } from 'react-native';
 import { useSQLiteContext } from 'expo-sqlite';
 import { addSession, updateSession } from '../db/db';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 export default function EditSessionScreen({ route, navigation }) {
   const db = useSQLiteContext();
   const session = route.params?.session;
   const isEditing = !!session;
 
-  const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
+  const [date, setDate] = useState(new Date());
   const [hours, setHours] = useState('');
   const [notes, setNotes] = useState('');
+  const [showDatePicker, setShowDatePicker] = useState(false);
 
   useEffect(() => {
     if (session) {
-      setDate(session.date);
+      setDate(new Date(session.date));
       setHours(session.hours.toString());
       setNotes(session.notes || '');
     }
   }, [session]);
 
   const handleSave = async () => {
-    if (!date || !hours) {
-      Alert.alert('Error', 'Please fill in date and hours');
+    if (!hours) {
+      Alert.alert('Error', 'Please fill in hours');
       return;
     }
 
@@ -32,11 +34,13 @@ export default function EditSessionScreen({ route, navigation }) {
       return;
     }
 
+    const dateStr = date.toISOString().split('T')[0];
+
     try {
       if (isEditing) {
-        await updateSession(db, session.id, date, hoursNum, notes);
+        await updateSession(db, session.id, dateStr, hoursNum, notes);
       } else {
-        await addSession(db, date, hoursNum, notes);
+        await addSession(db, dateStr, hoursNum, notes);
       }
       navigation.goBack();
     } catch (error) {
@@ -45,16 +49,31 @@ export default function EditSessionScreen({ route, navigation }) {
     }
   };
 
+  const onDateChange = (event, selectedDate) => {
+    const currentDate = selectedDate || date;
+    setShowDatePicker(false);
+    setDate(currentDate);
+  };
+
   return (
     <ScrollView className="flex-1 bg-white p-4">
       <View className="mb-4">
-        <Text className="text-gray-700 font-medium mb-1">Date (YYYY-MM-DD)</Text>
-        <TextInput
-          className="border border-gray-300 rounded-lg p-3 text-lg bg-gray-50"
-          value={date}
-          onChangeText={setDate}
-          placeholder="2023-01-01"
-        />
+        <Text className="text-gray-700 font-medium mb-1">Date</Text>
+        <TouchableOpacity 
+          onPress={() => setShowDatePicker(true)}
+          className="border border-gray-300 rounded-lg p-3 bg-gray-50"
+        >
+          <Text className="text-lg text-gray-800">{date.toLocaleDateString()}</Text>
+        </TouchableOpacity>
+        {showDatePicker && (
+          <DateTimePicker
+            testID="dateTimePicker"
+            value={date}
+            mode="date"
+            display="default"
+            onChange={onDateChange}
+          />
+        )}
       </View>
 
       <View className="mb-4">
