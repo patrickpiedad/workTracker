@@ -4,6 +4,8 @@ import { useAppDatabase } from '../db/DatabaseContext';
 import { addSession, updateSession } from '../db/db';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
+import { formatDate } from '../utils/dateFormatter';
+
 export default function EditSessionScreen({ route, navigation }) {
   const db = useAppDatabase();
   const session = route.params?.session;
@@ -34,6 +36,7 @@ export default function EditSessionScreen({ route, navigation }) {
       return;
     }
 
+    // Format date as YYYY-MM-DD for storage (ISO format best for sorting)
     const dateStr = date.toISOString().split('T')[0];
 
     try {
@@ -56,14 +59,14 @@ export default function EditSessionScreen({ route, navigation }) {
   };
 
   return (
-    <ScrollView className="flex-1 bg-white p-4">
+    <ScrollView className="flex-1 bg-slate-950 p-4">
       <View className="mb-4">
-        <Text className="text-gray-700 font-medium mb-1">Date</Text>
+        <Text className="text-slate-400 font-medium mb-1">Date</Text>
         <TouchableOpacity 
           onPress={() => setShowDatePicker(true)}
-          className="border border-gray-300 rounded-lg p-3 bg-gray-50"
+          className="border border-slate-800 rounded-lg p-3 bg-slate-900"
         >
-          <Text className="text-lg text-gray-800">{date.toLocaleDateString()}</Text>
+          <Text className="text-lg text-slate-50">{formatDate(date, false)}</Text>
         </TouchableOpacity>
         {showDatePicker && (
           <DateTimePicker
@@ -77,30 +80,32 @@ export default function EditSessionScreen({ route, navigation }) {
       </View>
 
       <View className="mb-4">
-        <Text className="text-gray-700 font-medium mb-1">Hours</Text>
+        <Text className="text-slate-400 font-medium mb-1">Hours</Text>
         <TextInput
-          className="border border-gray-300 rounded-lg p-3 text-lg bg-gray-50"
+          className="border border-slate-800 rounded-lg p-3 text-lg bg-slate-900 text-slate-50"
           value={hours}
           onChangeText={setHours}
           placeholder="1.5"
+          placeholderTextColor="#64748b"
           keyboardType="numeric"
         />
       </View>
 
       <View className="mb-6">
-        <Text className="text-gray-700 font-medium mb-1">Notes</Text>
+        <Text className="text-slate-400 font-medium mb-1">Notes</Text>
         <TextInput
-          className="border border-gray-300 rounded-lg p-3 text-lg bg-gray-50 h-32"
+          className="border border-slate-800 rounded-lg p-3 text-lg bg-slate-900 h-32 text-slate-50"
           value={notes}
           onChangeText={setNotes}
           placeholder="WOD details..."
+          placeholderTextColor="#64748b"
           multiline
           textAlignVertical="top"
         />
       </View>
 
       <TouchableOpacity
-        className="bg-blue-600 p-4 rounded-lg items-center"
+        className="bg-blue-600 p-4 rounded-lg items-center border border-blue-500 shadow-lg mb-10"
         onPress={handleSave}
       >
         <Text className="text-white text-lg font-bold">

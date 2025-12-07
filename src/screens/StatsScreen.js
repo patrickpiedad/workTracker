@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
+import { formatDate, formatMonth } from '../utils/dateFormatter';
 
 const VIEW_MODES = ['Daily', 'Weekly', 'Monthly', 'Yearly'];
 
@@ -20,7 +21,7 @@ export default function StatsScreen({ route }) {
         let key;
 
         if (viewMode === 'Daily') {
-          key = session.date; // YYYY-MM-DD
+          key = formatDate(session.date, true); // DD.MM.YYYY (Day)
         } else if (viewMode === 'Weekly') {
           // Robust Week Calculation
           const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
@@ -30,7 +31,8 @@ export default function StatsScreen({ route }) {
           const weekNo = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
           key = `${d.getUTCFullYear()} - Week ${weekNo}`;
         } else if (viewMode === 'Monthly') {
-          key = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}`;
+          key = formatMonth(session.date); // MM.YYYY
+
         } else if (viewMode === 'Yearly') {
           key = `${date.getFullYear()}`;
         }
@@ -53,8 +55,8 @@ export default function StatsScreen({ route }) {
   }, [sessions, viewMode]);
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#f9fafb', padding: 16 }}>
-      <View style={{ flexDirection: 'row', marginBottom: 16, backgroundColor: '#e5e7eb', padding: 4, borderRadius: 8 }}>
+    <View style={{ flex: 1, backgroundColor: '#020617', padding: 16 }}>
+      <View style={{ flexDirection: 'row', marginBottom: 16, backgroundColor: '#1e293b', padding: 4, borderRadius: 8 }}>
         {VIEW_MODES.map(mode => (
           <TouchableOpacity
             key={mode}
@@ -62,8 +64,8 @@ export default function StatsScreen({ route }) {
               flex: 1, 
               paddingVertical: 8, 
               borderRadius: 6,
-              backgroundColor: viewMode === mode ? 'white' : 'transparent',
-              shadowOpacity: viewMode === mode ? 0.1 : 0,
+              backgroundColor: viewMode === mode ? '#0f172a' : 'transparent',
+              shadowOpacity: viewMode === mode ? 0.3 : 0,
               shadowColor: '#000',
               shadowOffset: { width: 0, height: 1 },
               shadowRadius: 1,
@@ -74,7 +76,7 @@ export default function StatsScreen({ route }) {
             <Text style={{ 
               textAlign: 'center', 
               fontWeight: '500', 
-              color: viewMode === mode ? '#2563eb' : '#4b5563' 
+              color: viewMode === mode ? '#60a5fa' : '#94a3b8' 
             }}>
               {mode}
             </Text>
@@ -84,7 +86,7 @@ export default function StatsScreen({ route }) {
 
       <ScrollView style={{ flex: 1 }}>
         {aggregatedData.length === 0 ? (
-          <Text style={{ textAlign: 'center', color: '#9ca3af', marginTop: 40 }}>No data available</Text>
+          <Text style={{ textAlign: 'center', color: '#475569', marginTop: 40 }}>No data available</Text>
         ) : (
           aggregatedData.map((item) => (
             <View 
@@ -93,16 +95,16 @@ export default function StatsScreen({ route }) {
                 flexDirection: 'row', 
                 justifyContent: 'space-between', 
                 alignItems: 'center', 
-                backgroundColor: 'white', 
+                backgroundColor: '#0f172a', 
                 padding: 16, 
                 marginBottom: 8, 
                 borderRadius: 8, 
                 borderWidth: 1, 
-                borderColor: '#f3f4f6' 
+                borderColor: '#1e293b' 
               }}
             >
-              <Text style={{ color: '#1f2937', fontWeight: '500', fontSize: 18 }}>{item.label}</Text>
-              <Text style={{ color: '#2563eb', fontWeight: 'bold', fontSize: 18 }}>{item.hours.toFixed(1)} hrs</Text>
+              <Text style={{ color: '#f8fafc', fontWeight: '500', fontSize: 18 }}>{item.label}</Text>
+              <Text style={{ color: '#60a5fa', fontWeight: 'bold', fontSize: 18 }}>{item.hours.toFixed(1)} hrs</Text>
             </View>
           ))
         )}

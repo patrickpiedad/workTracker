@@ -4,6 +4,8 @@ import { useAppDatabase } from '../db/DatabaseContext';
 import { useFocusEffect } from '@react-navigation/native';
 import { getSessions, deleteSession } from '../db/db';
 
+import { formatDate } from '../utils/dateFormatter';
+
 export default function HomeScreen({ navigation }) {
   const db = useAppDatabase();
   const [sessions, setSessions] = useState([]);
@@ -57,52 +59,52 @@ export default function HomeScreen({ navigation }) {
 
   const renderItem = ({ item }) => (
     <TouchableOpacity
-      className="bg-white p-4 mb-2 rounded-lg shadow-sm border border-gray-100"
+      className="bg-slate-900 p-4 mb-2 rounded-lg shadow-sm border border-slate-800"
       onPress={() => navigation.navigate('EditSession', { session: item })}
     >
       <View className="flex-row justify-between items-center">
         <View>
-          <Text className="text-lg font-bold text-gray-800">{item.date}</Text>
-          <Text className="text-gray-600">{item.hours} hours</Text>
-          {item.notes ? <Text className="text-gray-400 text-sm mt-1">{item.notes}</Text> : null}
+          <Text className="text-lg font-bold text-slate-50">{formatDate(item.date)}</Text>
+          <Text className="text-slate-400">{item.hours} hours</Text>
+          {item.notes ? <Text className="text-slate-500 text-sm mt-1">{item.notes}</Text> : null}
         </View>
         <TouchableOpacity onPress={() => handleDelete(item.id)} className="p-2">
-          <Text className="text-red-500 font-medium">Delete</Text>
+          <Text className="text-red-400 font-medium">Delete</Text>
         </TouchableOpacity>
       </View>
     </TouchableOpacity>
   );
 
   return (
-    <View className="flex-1 bg-gray-50 p-4">
+    <View className="flex-1 bg-slate-950 p-4">
       <FlatList
         data={sessions}
         keyExtractor={(item) => item.id.toString()}
         renderItem={renderItem}
         ListHeaderComponent={
           <View className="mb-6">
-            <View className="bg-blue-600 p-6 rounded-xl shadow-md mb-4">
-              <Text className="text-blue-100 text-lg font-medium mb-1">This Month</Text>
+            <View className="bg-blue-600 p-6 rounded-xl shadow-md mb-4 border border-blue-500">
+              <Text className="text-blue-50 text-lg font-medium mb-1">This Month</Text>
               <Text className="text-white text-4xl font-bold">{monthlyHours.toFixed(1)} hrs</Text>
             </View>
             
             <TouchableOpacity 
-              className="bg-white p-4 rounded-lg items-center shadow-sm border border-gray-200"
+              className="bg-slate-900 p-4 rounded-lg items-center shadow-sm border border-slate-800"
               onPress={() => navigation.navigate('Stats', { sessions })}
             >
-              <Text className="text-blue-600 font-bold text-lg">View Detailed Stats</Text>
+              <Text className="text-blue-400 font-bold text-lg">View Detailed Stats</Text>
             </TouchableOpacity>
           </View>
         }
         ListEmptyComponent={
           <View className="flex-1 justify-center items-center mt-20">
-            <Text className="text-gray-400 text-lg">No sessions yet.</Text>
-            <Text className="text-gray-400">Tap + to add one.</Text>
+            <Text className="text-slate-600 text-lg">No sessions yet.</Text>
+            <Text className="text-slate-600">Tap + to add one.</Text>
           </View>
         }
       />
       <TouchableOpacity
-        className="absolute bottom-8 right-8 bg-blue-600 w-14 h-14 rounded-full justify-center items-center shadow-lg"
+        className="absolute bottom-8 right-8 bg-blue-600 w-14 h-14 rounded-full justify-center items-center shadow-lg border border-blue-400"
         onPress={() => navigation.navigate('EditSession')}
       >
         <Text className="text-white text-3xl font-bold">+</Text>
