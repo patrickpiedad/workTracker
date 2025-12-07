@@ -1,76 +1,112 @@
 import React, { useMemo, useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, FlatList } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 
 const VIEW_MODES = ['Daily', 'Weekly', 'Monthly', 'Yearly'];
 
 export default function StatsScreen({ route }) {
-  const { sessions } = route.params;
-  const [viewMode, setViewMode] = useState('Monthly');
+  const { sessions } = route.params || { sessions: [] };
+  const [viewMode, setViewMode] = useState('Weekly');
 
   const aggregatedData = useMemo(() => {
     const data = {};
+    if (!sessions) return [];
 
-    sessions.forEach(session => {
-      const date = new Date(session.date);
-      let key;
+    try {
+      sessions.forEach(session => {
+        if (!session.date) return;
+        const date = new Date(session.date);
+        if (isNaN(date.getTime())) return;
 
-      if (viewMode === 'Daily') {
-        key = session.date; // YYYY-MM-DD
-      } else if (viewMode === 'Weekly') {
-        const firstDayOfYear = new Date(date.getFullYear(), 0, 1);
-        const pastDaysOfYear = (date - firstDayOfYear) / 86400000;
-        const weekNum = Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7);
-        key = `${date.getFullYear()} - Week ${weekNum}`;
-      } else if (viewMode === 'Monthly') {
-        key = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}`;
-      } else if (viewMode === 'Yearly') {
-        key = `${date.getFullYear()}`;
-      }
+        let key;
 
-      if (!data[key]) {
-        data[key] = 0;
-      }
-      data[key] += session.hours;
-    });
+        if (viewMode === 'Daily') {
+          key = session.date; // YYYY-MM-DD
+        } else if (viewMode === 'Weekly') {
+          // Robust Week Calculation
+          const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+          const dayNum = d.getUTCDay() || 7;
+          d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+          const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+          const weekNo = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+          key = `${d.getUTCFullYear()} - Week ${weekNo}`;
+        } else if (viewMode === 'Monthly') {
+          key = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}`;
+        } else if (viewMode === 'Yearly') {
+          key = `${date.getFullYear()}`;
+        }
 
-    // Sort keys descending
-    return Object.keys(data).sort().reverse().map(key => ({
-      label: key,
-      hours: data[key]
-    }));
+        if (!data[key]) {
+          data[key] = 0;
+        }
+        data[key] += session.hours;
+      });
+
+      // Sort keys descending
+      return Object.keys(data).sort().reverse().map(key => ({
+        label: key,
+        hours: data[key]
+      }));
+    } catch (e) {
+      console.error("Error calculating stats:", e);
+      return [];
+    }
   }, [sessions, viewMode]);
 
-  const renderItem = ({ item }) => (
-    <View className="flex-row justify-between items-center bg-white p-4 mb-2 rounded-lg border border-gray-100">
-      <Text className="text-gray-800 font-medium text-lg">{item.label}</Text>
-      <Text className="text-blue-600 font-bold text-lg">{item.hours.toFixed(1)} hrs</Text>
-    </View>
-  );
-
   return (
-    <View className="flex-1 bg-gray-50 p-4">
-      <View className="flex-row mb-4 bg-gray-200 p-1 rounded-lg">
+    <View style={{ flex: 1, backgroundColor: '#f9fafb', padding: 16 }}>
+      <View style={{ flexDirection: 'row', marginBottom: 16, backgroundColor: '#e5e7eb', padding: 4, borderRadius: 8 }}>
         {VIEW_MODES.map(mode => (
           <TouchableOpacity
             key={mode}
-            className={`flex-1 py-2 rounded-md ${viewMode === mode ? 'bg-white shadow-sm' : ''}`}
+            style={{ 
+              flex: 1, 
+              paddingVertical: 8, 
+              borderRadius: 6,
+              backgroundColor: viewMode === mode ? 'white' : 'transparent',
+              shadowOpacity: viewMode === mode ? 0.1 : 0,
+              shadowColor: '#000',
+              shadowOffset: { width: 0, height: 1 },
+              shadowRadius: 1,
+              elevation: viewMode === mode ? 1 : 0
+            }}
             onPress={() => setViewMode(mode)}
           >
-            <Text className={`text-center font-medium ${viewMode === mode ? 'text-blue-600' : 'text-gray-600'}`}>
+            <Text style={{ 
+              textAlign: 'center', 
+              fontWeight: '500', 
+              color: viewMode === mode ? '#2563eb' : '#4b5563' 
+            }}>
               {mode}
             </Text>
           </TouchableOpacity>
         ))}
       </View>
 
-      <FlatList
-        data={aggregatedData}
-        keyExtractor={(item) => item.label}
-        renderItem={renderItem}
-        ListEmptyComponent={
-          <Text className="text-center text-gray-400 mt-10">No data available</Text>
-        }
-      />
+      <ScrollView style={{ flex: 1 }}>
+        {aggregatedData.length === 0 ? (
+          <Text style={{ textAlign: 'center', color: '#9ca3af', marginTop: 40 }}>No data available</Text>
+        ) : (
+          aggregatedData.map((item) => (
+            <View 
+              key={item.label} 
+              style={{ 
+                flexDirection: 'row', 
+                justifyContent: 'space-between', 
+                alignItems: 'center', 
+                backgroundColor: 'white', 
+                padding: 16, 
+                marginBottom: 8, 
+                borderRadius: 8, 
+                borderWidth: 1, 
+                borderColor: '#f3f4f6' 
+              }}
+            >
+              <Text style={{ color: '#1f2937', fontWeight: '500', fontSize: 18 }}>{item.label}</Text>
+              <Text style={{ color: '#2563eb', fontWeight: 'bold', fontSize: 18 }}>{item.hours.toFixed(1)} hrs</Text>
+            </View>
+          ))
+        )}
+      </ScrollView>
     </View>
   );
 }

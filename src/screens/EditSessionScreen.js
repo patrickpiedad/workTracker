@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Alert, ScrollView } from 'react-native';
-import { useSQLiteContext } from 'expo-sqlite';
+import { useAppDatabase } from '../db/DatabaseContext';
 import { addSession, updateSession } from '../db/db';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
 export default function EditSessionScreen({ route, navigation }) {
-  const db = useSQLiteContext();
+  const db = useAppDatabase();
   const session = route.params?.session;
   const isEditing = !!session;
 

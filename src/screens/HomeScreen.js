@@ -1,11 +1,11 @@
 import React, { useCallback, useState, useMemo } from 'react';
 import { View, Text, FlatList, TouchableOpacity, Alert } from 'react-native';
-import { useSQLiteContext } from 'expo-sqlite';
+import { useAppDatabase } from '../db/DatabaseContext';
 import { useFocusEffect } from '@react-navigation/native';
 import { getSessions, deleteSession } from '../db/db';
 
 export default function HomeScreen({ navigation }) {
-  const db = useSQLiteContext();
+  const db = useAppDatabase();
   const [sessions, setSessions] = useState([]);
 
   const loadSessions = useCallback(async () => {

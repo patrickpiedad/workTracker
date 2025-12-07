@@ -2,8 +2,7 @@ import './global.css';
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { SQLiteProvider } from 'expo-sqlite';
-import { migrateDbIfNeeded } from './src/db/db';
+import { DatabaseProvider } from './src/db/DatabaseContext';
 import HomeScreen from './src/screens/HomeScreen';
 import EditSessionScreen from './src/screens/EditSessionScreen';
 import StatsScreen from './src/screens/StatsScreen';
@@ -12,11 +11,7 @@ const Stack = createNativeStackNavigator();
 
 export default function App() {
   return (
-    <SQLiteProvider 
-      databaseName="worktracker.db" 
-      onInit={migrateDbIfNeeded}
-      onError={(error) => console.error('SQLite Error:', error)}
-    >
+    <DatabaseProvider>
       <NavigationContainer>
         <Stack.Navigator>
           <Stack.Screen 
@@ -38,6 +33,6 @@ export default function App() {
           />
         </Stack.Navigator>
       </NavigationContainer>
-    </SQLiteProvider>
+    </DatabaseProvider>
   );
 }
