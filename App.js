@@ -6,6 +6,7 @@ import { DatabaseProvider } from './src/db/DatabaseContext';
 import HomeScreen from './src/screens/HomeScreen';
 import EditSessionScreen from './src/screens/EditSessionScreen';
 import StatsScreen from './src/screens/StatsScreen';
+import SettingsScreen from './src/screens/SettingsScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -50,6 +51,11 @@ export default function App() {
             name="Stats" 
             component={StatsScreen} 
             options={{ title: 'Statistics' }} 
+          />
+          <Stack.Screen 
+            name="Settings" 
+            component={SettingsScreen} 
+            options={{ title: 'Settings' }} 
           />
         </Stack.Navigator>
       </NavigationContainer>

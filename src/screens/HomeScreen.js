@@ -10,6 +10,16 @@ export default function HomeScreen({ navigation }) {
   const db = useAppDatabase();
   const [sessions, setSessions] = useState([]);
 
+  React.useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <TouchableOpacity onPress={() => navigation.navigate('Settings')}>
+          <Text className="text-blue-400 font-bold text-base">Settings</Text>
+        </TouchableOpacity>
+      ),
+    });
+  }, [navigation]);
+
   const loadSessions = useCallback(async () => {
     try {
       const data = await getSessions(db);
